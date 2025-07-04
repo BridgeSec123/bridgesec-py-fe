@@ -1,0 +1,94 @@
+@import "./assets/styles/app.css";
+
+
+.input {
+  border-radius: 0.375rem;
+}
+
+.custom-scroll {
+
+  /* width */
+  &::-webkit-scrollbar,
+  ::-webkit-scrollbar {
+    width: 0.35rem;
+    height: 0.35rem;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb,
+  ::-webkit-scrollbar-thumb {
+    background: #546dfe26;
+    border-radius: 1rem;
+  }
+
+  /* Handle on hover */
+  &::-webkit-scrollbar-thumb:hover,
+  ::-webkit-scrollbar-thumb:hover {
+    background: #546dfe;
+  }
+
+}
+
+.code-card {
+  background: #fafaff;
+  border: 1px solid #ecefff;
+}
+
+.menu-item {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.json-diff {
+  font-family: sans-serif;
+  text-align: left;
+}
+
+
+
+.json-compair-card {
+  .card-body {
+    padding: 0;
+  }
+
+}
+
+.dark {
+  .code-card {
+    background: #007eff0f;
+    border: 1px solid #007eff29;
+  }
+
+  .json-compair-card {
+    .json-diff-viewer {
+      background: rgb(38 40 49) !important;
+      color: var(--gray-50);
+
+      .line-remove {
+        background-color: #632F34 !important;
+        color: white;
+      }
+
+      .line-add {
+        background-color: #044B53 !important;
+        color: white;
+      }
+
+      .line-modify {
+        background-color: var(--warning-subtle) !important;
+        color: white;
+      }
+
+      .inline-diff-remove,
+      .inline-diff-add {
+        background: #f59e0b45 !important;
+      }
+    }
+  }
+}
