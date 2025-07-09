@@ -15,6 +15,8 @@ import type {
 } from '@/@types/auth';
 import type { ReactNode } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
+import axiosInstance from '@/dashboard/axiosConfig';
+import axios from 'axios';
 
 type AuthProviderProps = { children: ReactNode };
 
@@ -39,7 +41,7 @@ let redirect: () => void;
 
 function AuthProvider({ children }: AuthProviderProps) {
     const signedIn = useSessionUser((state) => state.session.signedIn);
-    const user = useSessionUser((state) => state.user);
+    let user = useSessionUser((state) => state.user);
     const setUser = useSessionUser((state) => state.setUser);
     const setSessionSignedIn = useSessionUser(
         (state) => state.setSessionSignedIn,
@@ -64,25 +66,45 @@ function AuthProvider({ children }: AuthProviderProps) {
         console.log("token :: " +tokens.accessToken)
         setToken(tokens.accessToken);
         setSessionSignedIn(true);
+        localStorage.setItem("okta-token-storage", JSON.stringify(tokens));
+        
 
         if (user) {
-            setUser(user);
+            //setUser(user);
+            useSessionUser((state) => state.setUser({
+                userId: user.userId || null,
+            userName: user.userName || '',
+            email: user.email || null,
+            authority: ['USER'],
+            avatar: '',
+            }));
+            
         }
     };
 
     const handleSignOut = () => { 
-        console.log("handleSignOut called");       
+        console.log("handleSignOut called");  
+        localStorage.setItem("okta-token-storage", "");     
         setToken('');
         setUser({});
         setSessionSignedIn(false);
         
     };
 
-    const signIn = async (values: SignInCredential): AuthResult => {
+    const apiBaseUrl = import.meta.env.VITE_FIREBASE_API_BASE_URL;
+    const signIn = async ({ email, password }: SignInCredential): AuthResult => {
         try {
-            const resp = await apiSignIn(values);
+            const resp = await axiosInstance.post(`${apiBaseUrl}/api/token/`, {
+                email: email,
+                password:password,
+            });
             if (resp) {
-                handleSignIn({ accessToken: resp.token }, resp.user);
+                user.email=email                 
+                console.log("resp :: "+resp.data.token)
+
+                handleSignIn({ accessToken: resp.data.token}, user);
+                localStorage.setItem("sessionUser", JSON.stringify(user));
+
                 redirect();
                 return {
                     status: 'success',

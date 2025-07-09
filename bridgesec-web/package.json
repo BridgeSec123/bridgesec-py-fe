@@ -5,7 +5,7 @@
   "type": "module",
   "proxy": "0.0.0.0",
   "scripts": {
-    "start": "vite --host 0.0.0.0",
+    "start": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview",
     "prettier": "npx prettier src --check",
@@ -48,6 +48,7 @@
     "js-cookie": "^3.0.5",
     "json-diff-kit": "^1.0.29",
     "json-diff-ts": "^4.1.0",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "marked": "^14.1.2",
     "process": "^0.11.10",

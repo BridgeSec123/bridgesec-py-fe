@@ -11,13 +11,15 @@ const axiosInstance = axios.create({
 
 // Add a request interceptor to set the timezone header globally
 axiosInstance.interceptors.request.use((config) => {
-  config.headers['Timezone'] = timezone;
+  //config.headers['Timezone'] = timezone;
   //config.headers['Content-Type'] = '*'; // Add the timezone header
   const oktaTokenStorage = localStorage.getItem('okta-token-storage');
   let token=JSON.parse(oktaTokenStorage);
+  
   //console.log("claims :: ", token.claims?.aud);
-  if (token?.accessToken) {
-    config.headers.Authorization = `Bearer ${token?.accessToken}`;
+  if (token.accessToken) {
+    config.headers.Authorization = `Bearer ${token.accessToken}`;
+    
   } else {
     console.warn('idToken is not found in the okta-token-storage');
   }
