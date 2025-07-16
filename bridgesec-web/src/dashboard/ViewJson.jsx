@@ -4,6 +4,8 @@ import axios from "axios";
 import FormatJson from "../utils/jsonReader/FormatJson";
 import { useEffect, useRef, useState } from "react";
 import { HiArrowsExpand, HiChevronDown, HiChevronUp, HiOutlineX } from "react-icons/hi";
+import { format } from "date-fns";
+import axiosInstance from "./axiosConfig";
 
 const ViewJson = (props) => {
     const [isFormattedView, setIsFormattedView] = useState(false);
@@ -85,36 +87,76 @@ const ViewJson = (props) => {
         };
     }, []);
 
-    const handleRestore = () => {
-        console.log('restore');
+    const handleRestore = async () => {
         setRestoreLoading(true);
-        axios.get(`https://run.mocky.io/v3/b22230ec-9795-41a2-93a6-ab8691aeedf1`).then((res) => {
-            if (res.data.length > 0) {
-                const fetchedDate = new Date(res.data[0].createDate);
-                if (!isNaN(fetchedDate)) {
-                    props.onChange(fetchedDate);
-                    toast.push(
-                        <Notification title="Success" type="success">
-                            Previous version successfully restored.
-                        </Notification>
-                    );
-                } else {
-                    throw new Error("Invalid date in response");
-                }
-            } else {
-                throw new Error("No data in response");
+        try {
+            if (!props.entityName || !props.date) {
+                console.error('Missing required props: entityName or date');
+                toast.push(
+                    <Notification title="Error" type="danger">
+                        Entity name and date are required.
+                    </Notification>
+                );
+                throw new Error('Entity name and date are required');
             }
-        }).catch((err) => {
-            console.error("Error: ", err);
+
+            const formattedDate = format(props.date, 'yyyy-MM-dd');
+            const formattedData = {
+                data: Array.isArray(props.data) ? props.data : [],
+            };
+
+            // console.log('Entity:', props.entityName);
+            // console.log('Formatted Date:', formattedDate);
+            // console.log('Formatted Data:', formattedData);
+
+            const baseURL = import.meta.env.VITE_FIREBASE_API_BASE_URL;
+            if (!baseURL) {
+                console.error('API base URL is not defined');
+                toast.push(
+                    <Notification title="Error" type="danger">
+                        API configuration error
+                    </Notification>
+                );
+                throw new Error('API base URL is not configured');
+            }
+
+            // POST request
+            const res = await axiosInstance.post(
+                `${baseURL}/restore/${formattedDate}/${props.entityName}/`,
+                formattedData
+            );
+            if (res.status === 200 || res.status === 201) {
+                console.log('Restore successful:', res.data);
+                toast.push(
+                    <Notification title="Success" type="success">
+                        Previous version successfully restored.
+                    </Notification>
+                );
+                return res.data; // Return response data for caller
+            } else {
+                // Handle non-success status codes (e.g., 400, 404, 500)
+                console.error('Restore failed with status:', res.status);
+                toast.push(
+                    <Notification title="Error" type="danger">
+                        Restore Failed: Server responded with status {res.status}
+                    </Notification>
+                );
+                throw new Error(`Restore Failed: Server responded with status ${res.status}`);
+            }
+        } catch (error) {
+            console.error('Restore failed:', error.message);
             toast.push(
                 <Notification title="Error" type="danger">
-                    Failed to restore previous version.
+                    Restore Failed: {error.message}
                 </Notification>
             );
-        }).finally(() => {
+            throw error; 
+        } finally {
             setRestoreLoading(false);
-        });
+        }
     };
+
+
 
     return (
         <div ref={expWindowElm} className="dark:bg-gray-800 bg-white">
@@ -182,8 +224,8 @@ const ViewJson = (props) => {
                         props.expStatus.exp && !expWindow
                             ? { height: 'calc(100vh - 19rem)' }
                             : expWindow
-                            ? { height: 'calc(100vh - 6rem)' }
-                            : { height: 'calc(1.6rem)' }
+                                ? { height: 'calc(100vh - 6rem)' }
+                                : { height: 'calc(1.6rem)' }
                     }
                     className="overflow-scroll transition-all"
                 >

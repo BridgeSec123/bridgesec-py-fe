@@ -10,7 +10,7 @@ import {
     PiSignOutDuotone,
 } from 'react-icons/pi'
 import { useAuth } from '@/auth'
-//import { useOktaAuth } from '@okta/okta-react';
+import axiosInstance from '@/dashboard/axiosConfig'
 
 type DropdownList = {
     label: string
@@ -40,12 +40,13 @@ const _UserDropdown = () => {
     const { avatar, userName, email } = useSessionUser((state) => state.user)
 
     const { signOut } = useAuth()
-    //const { oktaAuth } = useOktaAuth();
+    // const { oktaAuth } = useOktaAuth();
 
     const handleSignOut = async() => {
         try {
             signOut()
-            //await oktaAuth.signOut();
+           // await oktaAuth.signOut();
+           await axiosInstance.get('http://localhost:8000/okta/logout/')
         } catch (error) {
             console.error('Error signing out:', error);
         }

@@ -1,59 +1,58 @@
-import React, { useEffect } from 'react';
-import { useOktaAuth } from '@okta/okta-react';
-import { useNavigate } from 'react-router-dom';
+import { User } from '@/@types/auth';
+import cookiesStorage from '@/utils/cookiesStorage';
+import { jwtDecode } from 'jwt-decode';
+import { useEffect, useState } from 'react';
 import { authProvider } from './AuthProvider';
+import { useSessionUser } from '@/store/authStore';
 
-const LoginCallbackPage = () => {
-  const { oktaAuth } = useOktaAuth();
-  const navigate = useNavigate();
+const LoginCallbackPage = () => {  
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  let user = useSessionUser((state) => state.user);
 
-  // useEffect(() => {
-    const handleAuthentication = async () => {
+  useEffect(() => {
+    const handleCallback = async () => {
       try {
-        //console.log("oktaAuth :: "+oktaAuth)
+        const accessToken = await cookiesStorage.getItem('access_token');
+         //const userData = JSON.parse(atob(accessToken.split('.')[1]));         
+        // console.log("user :: "+user.email);
+        const sessionId = await cookiesStorage.getItem('sessionid');
         
-        if (oktaAuth.token.isLoginRedirect()) {
-        const tokenResponse = await oktaAuth.token.parseFromUrl(); 
-        await oktaAuth.tokenManager.setTokens(tokenResponse.tokens);
-        const accessToken = tokenResponse.tokens?.accessToken;        
-        const idToken = tokenResponse.tokens.idToken; 
-        // Log tokens for debugging (optional)
-        console.log("Access Token:", accessToken);
-        //console.log("ID Token:", idToken);
 
-        if (tokenResponse.tokens.accessToken) {
-          //await new Promise(resolve => setTimeout(resolve, 200));
-          console.log(oktaAuth.isAuthenticated());
-          let user=null;
-          if (oktaAuth.isAuthenticated()) {
-            user = await oktaAuth.getUser(); 
-            console.log("userInfo :: ", user); 
+        if (!accessToken) {          
+          throw new Error('No access token found in cookies');
+        } else {          
+          const decodedToken = jwtDecode<User>(accessToken);          
+          user.email=decodedToken.email;    
+          //console.log("user :: "+user)   ;
+          authProvider.handleSignIn({ accessToken: accessToken}, user);
+          //localStorage.setItem("sessionUser", JSON.stringify(user));
+          cookiesStorage.removeItem('access_token');
+          cookiesStorage.removeItem('sessionid');
+          cookiesStorage.removeItem('csrftoken');           
+          authProvider.redirect()
+
         }
-           //var sessionuser=localStorage.getItem("sessionUser");
-           //const user = JSON.parse(sessionuser);
-          //const user = await oktaAuth?.getUser();
-          // Handle sign-in with your auth provider
-          authProvider.handleSignIn(accessToken, user);
 
-          // Store tokens and user information in local storage (or your state management)
-           localStorage.setItem("okta-token-storage", JSON.stringify(accessToken));
-           localStorage.setItem("sessionUser", JSON.stringify(user));
-
-          authProvider.redirect(); 
-        }
-      }else{
-        console.log("not redirect")
-      }
       } catch (err) {
-        console.error('Error handling Okta redirect callback', err);
-        
+        console.error('Error processing Okta callback:', err);
+        setError('Failed to authenticate. Please try again.');
+        setLoading(false);
       }
     };
-    useEffect(() => {
-    handleAuthentication();
-  }, [oktaAuth]);
 
-  return <div>Loading...</div>;
+    handleCallback();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return <div>Processing authentication...</div>;
 };
 
 export default LoginCallbackPage;

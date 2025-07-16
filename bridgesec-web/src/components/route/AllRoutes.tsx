@@ -26,7 +26,7 @@ const AllRoutes = (props: AllRoutesProps) => {
     return (
         <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/login/callback" element={<LoginCallbackPage />} />
+            <Route path="/okta/callback/" element={<LoginCallbackPage />} />
             <Route path="/" element={<ProtectedRoute />}>
                 <Route
                     path="/"

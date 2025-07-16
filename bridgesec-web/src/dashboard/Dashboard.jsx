@@ -53,6 +53,7 @@ const Dashboard = () => {
 
     const handleEntityTypeChange = (selectedOption) => {
         if (selectedOption) {
+            setLoading(true);
             if (selectedOption.value !== selectedEntityType) {
                 setEntityNameOptions([]);
                 setSelectedEntityName(null);
@@ -68,6 +69,7 @@ const Dashboard = () => {
             setSelectedEntityType('');
             
         }
+        setLoading(false);
     };
 
     const fetchEntityNames = async (selectedOption) => {
@@ -99,6 +101,7 @@ const Dashboard = () => {
 
     const handleEntityNameChange = async (selectedOption) => {
         if (selectedOption) {
+            setLoading(true);
             setSelectedEntityOption(selectedOption);
             setSelectedEntityName(selectedOption.value);
             const newDate = new Date();
@@ -117,6 +120,7 @@ const Dashboard = () => {
                     getEntityJson(params, 'second'),
                 ]);
             } finally {
+                setLoading(false);
                 setJsonLoading(false);
             }
             setComparedJson([]);
@@ -244,6 +248,9 @@ const Dashboard = () => {
         }
     };
 
+
+   
+
     return (
         <div className='card card-border'>
             <div className='card-body p-2'>
@@ -264,6 +271,8 @@ const Dashboard = () => {
                                 onChange={handleEntityNameChange}
                                 value={selectedEntityOption}
                                 isLoading={loading}
+                                
+                                
                             />
                         </FormItem>
                     </div>
@@ -295,6 +304,8 @@ const Dashboard = () => {
                             placeholder={'Current Date'}
                             onChange={(date) => handleDateChange(date, true)}
                             jsonLoading={jsonLoading}
+                            entityName={selectedEntityName}                            
+                            
                         />
                     </div>
                 )}
@@ -309,7 +320,9 @@ const Dashboard = () => {
                                     expStatus={{ exp: jsonViewExpanded, setexp: setJsonViewExpanded }}
                                     placeholder={'Pick a Date'}
                                     onChange={(date) => handleDateChange(date, true)}
-                                    jsonLoading={jsonLoading}
+                                    jsonLoading={jsonLoading}                                    
+                                    entityName={selectedEntityName}                                    
+                                    
                                 />
                             </div>
                             <div className='flex-1' style={{ overflowY: 'auto' }}>
@@ -320,7 +333,9 @@ const Dashboard = () => {
                                     expStatus={{ exp: jsonViewExpanded, setexp: setJsonViewExpanded }}
                                     placeholder={'Current Date'}
                                     onChange={(date) => handleDateChange(date, false)}
-                                    jsonLoading={jsonLoading}
+                                    jsonLoading={jsonLoading}                                    
+                                    entityName={selectedEntityName}                                    
+                                    
                                 />
                             </div>
                         </div>

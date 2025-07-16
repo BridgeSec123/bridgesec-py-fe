@@ -16,7 +16,8 @@ import type {
 import type { ReactNode } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
 import axiosInstance from '@/dashboard/axiosConfig';
-import axios from 'axios';
+import cookiesStorage from '@/utils/cookiesStorage';
+
 
 type AuthProviderProps = { children: ReactNode };
 
@@ -63,28 +64,27 @@ function AuthProvider({ children }: AuthProviderProps) {
     };
 
     handleSignIn = (tokens: Token, user?: User) => {
-        console.log("token :: " +tokens.accessToken)
+        console.log("User :: " +user.email)
         setToken(tokens.accessToken);
         setSessionSignedIn(true);
         localStorage.setItem("okta-token-storage", JSON.stringify(tokens));
-        
-
-        if (user) {
-            //setUser(user);
-            useSessionUser((state) => state.setUser({
-                userId: user.userId || null,
-            userName: user.userName || '',
-            email: user.email || null,
-            authority: ['USER'],
-            avatar: '',
-            }));
+        if (user) {    
+            setUser(user);
+            // useSessionUser((state) => state.setUser({
+            // userId: user.userId || null,
+            // userName: user.userName || 'User',
+            // email: user.email || null,
+            // authority: ['USER'],
+            // avatar: '',
+            // }));
             
         }
     };
 
     const handleSignOut = () => { 
         console.log("handleSignOut called");  
-        localStorage.setItem("okta-token-storage", "");     
+        localStorage.setItem("okta-token-storage", '{}'); 
+           
         setToken('');
         setUser({});
         setSessionSignedIn(false);
@@ -103,7 +103,7 @@ function AuthProvider({ children }: AuthProviderProps) {
                 console.log("resp :: "+resp.data.token)
 
                 handleSignIn({ accessToken: resp.data.token}, user);
-                localStorage.setItem("sessionUser", JSON.stringify(user));
+                //localStorage.setItem("sessionUser", JSON.stringify(user));
 
                 redirect();
                 return {
@@ -149,6 +149,8 @@ function AuthProvider({ children }: AuthProviderProps) {
     const signOut = async () => {
         try {
             await apiSignOut();
+            
+                     
         } finally {
             handleSignOut();
             navigatorRef.current?.navigate(appConfig.unAuthenticatedEntryPath);

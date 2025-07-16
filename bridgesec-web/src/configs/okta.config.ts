@@ -7,9 +7,9 @@ export type OktaConfig = {
 }
 
 export const oktaConfig: OktaConfig = {
-    clientId: '0oaictmjnjUzW4Lnh1d7',
-    issuer: 'https://sivajioieciam.oktapreview.com/oauth2/default',
-    redirectUri: window.location.origin + '/login/callback',
+    clientId: '0oanyzd6atWGPyrnM1d7',
+    issuer: 'http://localhost:8000/okta/login/',
+    redirectUri: 'http://localhost:8000/okta/callback/',
     scopes: ['openid', 'profile', 'email'],
     pkce: true,
 }

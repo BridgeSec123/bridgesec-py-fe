@@ -1,22 +1,18 @@
 import React, { useEffect } from 'react';
-import { useOktaAuth } from '@okta/okta-react';
 
 const LoginPage = () => {
-  const { oktaAuth } = useOktaAuth();
-
-  const handleLogin = async () => {
-    try {
-      await oktaAuth.signInWithRedirect({
-        originalUri: window.location.href+"/dashboard", // current url
-      });
-    } catch (err) {
-      console.error('Error redirecting to Okta sign-in page', err);
-    }
-  };
-
   useEffect(() => {
+    const handleLogin = async () => {
+      try {
+        window.location.href = 'http://localhost:8000/okta/login/';
+        
+      } catch (err) {
+        console.error('Error redirecting to Okta login', err);
+      }
+    };
+
     handleLogin();
-  }, []); 
+  }, []);
 
   return (
     <div>
