@@ -16,7 +16,6 @@ import type {
 import type { ReactNode } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
 import axiosInstance from '@/dashboard/axiosConfig';
-import cookiesStorage from '@/utils/cookiesStorage';
 
 
 type AuthProviderProps = { children: ReactNode };
@@ -53,6 +52,8 @@ function AuthProvider({ children }: AuthProviderProps) {
 
     const navigatorRef = useRef<IsolatedNavigatorRef>(null);
 
+    const apiBaseUrl = import.meta.env.VITE_FIREBASE_API_BASE_URL;
+
     redirect = () => {
         const search = window.location.search;
         const params = new URLSearchParams(search);
@@ -83,15 +84,14 @@ function AuthProvider({ children }: AuthProviderProps) {
 
     const handleSignOut = () => { 
         console.log("handleSignOut called");  
-        localStorage.setItem("okta-token-storage", '{}'); 
-           
+        localStorage.setItem("okta-token-storage", '{}');            
         setToken('');
         setUser({});
         setSessionSignedIn(false);
         
     };
 
-    const apiBaseUrl = import.meta.env.VITE_FIREBASE_API_BASE_URL;
+    
     const signIn = async ({ email, password }: SignInCredential): AuthResult => {
         try {
             const resp = await axiosInstance.post(`${apiBaseUrl}/api/token/`, {
@@ -148,8 +148,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
     const signOut = async () => {
         try {
-            await apiSignOut();
-            
+            await apiSignOut();   
                      
         } finally {
             handleSignOut();
