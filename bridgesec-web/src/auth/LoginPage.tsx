@@ -4,7 +4,8 @@ const LoginPage = () => {
   useEffect(() => {
     const handleLogin = async () => {
       try {
-        window.location.href = 'http://localhost:8000/okta/login/';
+        const baseURL=import.meta.env.VITE_FIREBASE_API_BASE_URL;
+        window.location.href = `${baseURL}/okta/login/`;
         
       } catch (err) {
         console.error('Error redirecting to Okta login', err);
