@@ -46,7 +46,8 @@ const _UserDropdown = () => {
         try {
             signOut()
            // await oktaAuth.signOut();
-           await axiosInstance.get('http://localhost:8000/okta/logout/')
+           const baseURL=import.meta.env.VITE_FIREBASE_API_BASE_URL;
+           await axiosInstance.get(`${baseURL}/okta/logout/`)
         } catch (error) {
             console.error('Error signing out:', error);
         }
