@@ -6,6 +6,9 @@ import Views from '@/views'
 import appConfig from './configs/app.config'
 import './locales'
 
+if (!localStorage.getItem('okta-token-storage')) {
+    localStorage.setItem('okta-token-storage', JSON.stringify({}))
+}
 if (appConfig.enableMock) {
     import('./mock')
 }
